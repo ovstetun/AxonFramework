@@ -25,9 +25,9 @@ public abstract class AbstractEventSchemaFactory implements EventSchemaFactory {
     public PreparedStatement createDomainEventTable(Connection connection,
                                                     EventSchema configuration) throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS " + configuration.domainEventTable() + " (\n" +
-                configuration.globalIndexColumn() + " BIGINT " + autoIncrement() + " NOT NULL,\n" +
+                configuration.globalIndexColumn() + " " + numericDataType() + " " + autoIncrement() + " NOT NULL,\n" +
                 configuration.aggregateIdentifierColumn() + " VARCHAR(255) NOT NULL,\n" +
-                configuration.sequenceNumberColumn() + " BIGINT NOT NULL,\n" +
+                configuration.sequenceNumberColumn() + numericDataType() + " NOT NULL,\n" +
                 configuration.typeColumn() + " VARCHAR(255) NOT NULL,\n" +
                 configuration.eventIdentifierColumn() + " VARCHAR(255) NOT NULL,\n" +
                 configuration.metaDataColumn() + " " + payloadType() + ",\n" +
@@ -48,7 +48,7 @@ public abstract class AbstractEventSchemaFactory implements EventSchemaFactory {
                                                       EventSchema configuration) throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS " + configuration.snapshotTable() + " (\n" +
                 configuration.aggregateIdentifierColumn() + " VARCHAR(255) NOT NULL,\n" +
-                configuration.sequenceNumberColumn() + " BIGINT NOT NULL,\n" +
+                configuration.sequenceNumberColumn() + numericDataType() + " NOT NULL,\n" +
                 configuration.typeColumn() + " VARCHAR(255) NOT NULL,\n" +
                 configuration.eventIdentifierColumn() + " VARCHAR(255) NOT NULL,\n" +
                 configuration.metaDataColumn() + " " + payloadType() + ",\n" +
@@ -61,6 +61,10 @@ public abstract class AbstractEventSchemaFactory implements EventSchemaFactory {
                 "UNIQUE (" + configuration.eventIdentifierColumn() + ")\n" +
                 ")";
         return connection.prepareStatement(sql);
+    }
+
+    protected String numericDataType() {
+        return "BIGINT";
     }
 
     protected abstract String autoIncrement();
