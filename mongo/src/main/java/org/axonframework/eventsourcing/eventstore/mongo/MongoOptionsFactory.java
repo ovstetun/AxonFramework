@@ -16,14 +16,15 @@
 
 package org.axonframework.eventsourcing.eventstore.mongo;
 
-import com.mongodb.MongoOptions;
+import com.mongodb.MongoClientOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>Factory class used to create a <code>MongoOptions</code> instance. The instance makes use of the defaults as
- * provided by the MongoOptions class. The moment you set a valid value, that value is used to create the options
- * object.</p>
+ * <p>
+ * Factory class used to create a <code>MongoOptions</code> instance. The instance makes use of the defaults as provided
+ * by the MongoOptions class. The moment you set a valid value, that value is used to create the options object.
+ * </p>
  *
  * @author Jettro Coenradie
  * @since 2.0 (in incubator since 0.7)
@@ -32,19 +33,18 @@ public class MongoOptionsFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(MongoOptionsFactory.class);
 
-    private MongoOptions defaults;
+    private MongoClientOptions defaults;
     private int connectionsPerHost;
     private int connectionTimeout;
     private int maxWaitTime;
     private int threadsAllowedToBlockForConnectionMultiplier;
-    private boolean autoConnectRetry;
     private int socketTimeOut;
 
     /**
      * Default constructor for the factory that initializes the defaults.
      */
     public MongoOptionsFactory() {
-        defaults = new MongoOptions();
+        defaults = MongoClientOptions.builder().build();
     }
 
     /**
@@ -52,42 +52,22 @@ public class MongoOptionsFactory {
      *
      * @return MongoOptions instance based on the configured properties
      */
-    public MongoOptions createMongoOptions() {
-        MongoOptions options = new MongoOptions();
-        options.connectionsPerHost = getConnectionsPerHost();
-        options.connectTimeout = getConnectionTimeout();
-        options.maxWaitTime = getMaxWaitTime();
-        options.threadsAllowedToBlockForConnectionMultiplier = getThreadsAllowedToBlockForConnectionMultiplier();
-        options.autoConnectRetry = isAutoConnectRetry();
-        options.socketTimeout = getSocketTimeOut();
+    public MongoClientOptions createMongoOptions() {
+        MongoClientOptions options = MongoClientOptions.builder()
+                .connectionsPerHost(getConnectionsPerHost())
+                .connectTimeout(getConnectionTimeout())
+                .maxWaitTime(getMaxWaitTime())
+                .threadsAllowedToBlockForConnectionMultiplier(getThreadsAllowedToBlockForConnectionMultiplier())
+                .socketTimeout(getSocketTimeOut()).build();
         if (logger.isDebugEnabled()) {
             logger.debug("Mongo Options");
-            logger.debug("Connections per host :{}", options.connectionsPerHost);
-            logger.debug("Connection timeout : {}", options.connectTimeout);
-            logger.debug("Max wait timeout : {}", options.maxWaitTime);
-            logger.debug("Threads allowed to block : {}", options.threadsAllowedToBlockForConnectionMultiplier);
-            logger.debug("Autoconnect retry : {}", options.autoConnectRetry);
-            logger.debug("Socket timeout : {}", options.socketTimeout);
+            logger.debug("Connections per host :{}", options.getConnectionsPerHost());
+            logger.debug("Connection timeout : {}", options.getConnectTimeout());
+            logger.debug("Max wait timeout : {}", options.getMaxWaitTime());
+            logger.debug("Threads allowed to block : {}", options.getThreadsAllowedToBlockForConnectionMultiplier());
+            logger.debug("Socket timeout : {}", options.getSocketTimeout());
         }
         return options;
-    }
-
-    /**
-     * Getter for the AutoConnectRetry property.
-     *
-     * @return true if autoConnectRetry is true
-     */
-    public boolean isAutoConnectRetry() {
-        return (autoConnectRetry) || defaults.autoConnectRetry;
-    }
-
-    /**
-     * Setter for AutoConnectRetry.
-     *
-     * @param autoConnectRetry true if must try to auto reconnect
-     */
-    public void setAutoConnectRetry(boolean autoConnectRetry) {
-        this.autoConnectRetry = autoConnectRetry;
     }
 
     /**
@@ -96,13 +76,14 @@ public class MongoOptionsFactory {
      * @return number representing the connections per host
      */
     public int getConnectionsPerHost() {
-        return (connectionsPerHost > 0) ? connectionsPerHost : defaults.connectionsPerHost;
+        return (connectionsPerHost > 0) ? connectionsPerHost : defaults.getConnectionsPerHost();
     }
 
     /**
      * Setter for the connections per host that are allowed.
      *
-     * @param connectionsPerHost number representing the number of connections per host
+     * @param connectionsPerHost
+     *            number representing the number of connections per host
      */
     public void setConnectionsPerHost(int connectionsPerHost) {
         this.connectionsPerHost = connectionsPerHost;
@@ -114,13 +95,14 @@ public class MongoOptionsFactory {
      * @return number representing milli seconds of timeout
      */
     public int getConnectionTimeout() {
-        return (connectionTimeout > 0) ? connectionTimeout : defaults.connectTimeout;
+        return (connectionTimeout > 0) ? connectionTimeout : defaults.getConnectTimeout();
     }
 
     /**
      * Setter for the connection time out.
      *
-     * @param connectionTimeout number representing the connection timeout in millis
+     * @param connectionTimeout
+     *            number representing the connection timeout in millis
      */
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
@@ -132,13 +114,14 @@ public class MongoOptionsFactory {
      * @return number of milli seconds the thread waits for a connection
      */
     public int getMaxWaitTime() {
-        return (maxWaitTime > 0) ? maxWaitTime : defaults.maxWaitTime;
+        return (maxWaitTime > 0) ? maxWaitTime : defaults.getMaxWaitTime();
     }
 
     /**
      * Set the max wait time for a blocked thread in milli seconds.
      *
-     * @param maxWaitTime number representing the number of milli seconds to wait for a thread
+     * @param maxWaitTime
+     *            number representing the number of milli seconds to wait for a thread
      */
     public void setMaxWaitTime(int maxWaitTime) {
         this.maxWaitTime = maxWaitTime;
@@ -150,13 +133,14 @@ public class MongoOptionsFactory {
      * @return Number representing the amount of milli seconds to wait for a socket connection
      */
     public int getSocketTimeOut() {
-        return (socketTimeOut > 0) ? socketTimeOut : defaults.socketTimeout;
+        return (socketTimeOut > 0) ? socketTimeOut : defaults.getSocketTimeout();
     }
 
     /**
      * Setter for the socket time out.
      *
-     * @param socketTimeOut number representing the amount of milli seconds to wait for a socket connection
+     * @param socketTimeOut
+     *            number representing the amount of milli seconds to wait for a socket connection
      */
     public void setSocketTimeOut(int socketTimeOut) {
         this.socketTimeOut = socketTimeOut;
@@ -171,15 +155,15 @@ public class MongoOptionsFactory {
     public int getThreadsAllowedToBlockForConnectionMultiplier() {
         return (threadsAllowedToBlockForConnectionMultiplier > 0)
                 ? threadsAllowedToBlockForConnectionMultiplier
-                : defaults.threadsAllowedToBlockForConnectionMultiplier;
+                : defaults.getThreadsAllowedToBlockForConnectionMultiplier();
     }
 
     /**
      * Set the multiplier for the amount of threads to block in relation to the maximum amount of connections.
      *
      * @param threadsAllowedToBlockForConnectionMultiplier
-     *         Number representing the multiplier of the amount of
-     *         threads to block in relation to the connections that are allowed.
+     *            Number representing the multiplier of the amount of threads to block in relation to the connections
+     *            that are allowed.
      */
     public void setThreadsAllowedToBlockForConnectionMultiplier(int threadsAllowedToBlockForConnectionMultiplier) {
         this.threadsAllowedToBlockForConnectionMultiplier = threadsAllowedToBlockForConnectionMultiplier;
